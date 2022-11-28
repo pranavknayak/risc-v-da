@@ -95,6 +95,28 @@ for binary in binary_list:
         elif funct3 == '111':
             instruction += 'lwu '
 
+        rd = str(int(rd, 2))
+        rs1 = str(int(rs1, 2))
+        immediate = str(int(immediate, 2))
+
+        instruction += 'x' + rd + ', ' + immediate + '(x' + rs1 + ')'
+    # S-type Instruction handler
+
+    elif opcode == '0100011':
+        immediate = binary[:7] + binary[-12:-7]
+        funct3 = binary[-15:-12]
+        rs1 = binary[-20:-15]
+        rs2 = binary[-25:-20]
+
+        if funct3 == '000':
+            instruction += 'sb '
+        elif funct3 == '001':
+            instruction += 'sh '
+        elif funct3 == '010':
+            instruction += 'sw '
+        elif funct3 == '011':
+            instruction += 'sd '
+
     instruction_list[instruction_count] += instruction
     output_file.write(instruction_list[instruction_count])
     output_file.write("\n")
