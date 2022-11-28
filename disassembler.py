@@ -145,13 +145,43 @@ for binary in binary_list:
 
         immediate = 2 * int(immediate, 2)
         rs1 = str(int(rs1, 2))
-        rs2 = str(int(rs2))
+        rs2 = str(int(rs2, 2))
 
         instruction += 'x' + rs1 + ', x' + rs2 + \
             ", L" + str((instruction_count))
         instruction_list[instruction_count + int(immediate /
                          4)] = "L" + str((instruction_count)) + ": "
-    print(instruction_count)
+
+    # jal handler:
+    elif opcode == '1101111':
+        immediate = binary[-32] + binary[-20:-12] + \
+            binary[-21] + binary[-31:-21]
+        rd = binary[-12:-7]
+        instruction += 'jal '
+
+        immediate = 2 * int(immediate, 2)
+        rd = str(int(rd, 2))
+
+        instruction += 'x' + rd + ', L' + str((instruction_count))
+        instruction_list[instruction_count +
+                         int(immediate/4)] = "L" + str((instruction_count)) + ": "
+
+    # jalr handler
+    elif opcode == '1100111':
+        rd = binary[-12:-7]
+        funct3 = binary[-15:-12]
+        rs1 = binary[-20:-15]
+        immediate = binary[-32:-20]
+
+        if funct3 == '000':
+            instruction += 'jalr '
+
+        rd = str(int(rd, 2))
+        rs1 = str(int(rs1, 2))
+        immediate = str(int(immediate, 2))
+
+        instruction += 'x' + rd + ', ' + immediate + '(x' + rs1 + ')'
+
     instruction_list[instruction_count] += instruction
     output_file.write(instruction_list[instruction_count])
     output_file.write("\n")
