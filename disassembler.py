@@ -43,9 +43,9 @@ for binary in binary_list:
         rd = str(int(rd, 2))
         rs1 = str(int(rs1, 2))
         rs2 = str(int(rs2, 2))
-
         instruction = instruction + "x" + rd + ", x" + rs1 + ", x" + rs2
 
+    # I-type (non-load) instruction handler
     elif opcode == '0010011':
         rd = binary[-12:-7]
         funct3 = binary[-15:-12]
@@ -67,12 +67,33 @@ for binary in binary_list:
                 instruction += 'srli '
             elif immediate[:6] == '010000':
                 instruction += 'srai '
+            immediate = immediate[6:]
 
         rd = str(int(rd, 2))
         rs1 = str(int(rs1, 2))
-        immediate = str(int(immediate[6:], 2))
-
+        immediate = str(int(immediate, 2))
         instruction += "x" + rd + ", x" + rs1 + ", " + immediate
+
+    # I-type Load Instruction handler
+    elif opcode == '0000011':
+        rd = binary[-12:-7]
+        funct3 = binary[-15:-12]
+        rs1 = binary[-20:-15]
+        immediate = binary[-32:-20]
+        if funct3 == '000':
+            instruction += 'lb '
+        elif funct3 == '001':
+            instruction += 'lh '
+        elif funct3 == '010':
+            instruction += 'lw '
+        elif funct3 == '011':
+            instruction += 'ld '
+        elif funct3 == '100':
+            instruction += 'lbu '
+        elif funct3 == '101':
+            instruction += 'lhu '
+        elif funct3 == '111':
+            instruction += 'lwu '
 
     instruction_list[instruction_count] += instruction
     output_file.write(instruction_list[instruction_count])
