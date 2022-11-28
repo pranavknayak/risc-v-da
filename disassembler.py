@@ -1,3 +1,5 @@
+import sys
+
 input_filename = input(
     "Enter the filename/path for the hex instruction file: ")
 output_filename = input_filename.split(".")[0] + ".s"
@@ -15,6 +17,7 @@ for hex_code in hex_instructions:
 
 instruction_list = [""]*len(hex_instructions)
 instruction_count = 0
+label_count = 1
 for binary in binary_list:
     instruction = ""
     opcode = binary[-7:]
@@ -39,11 +42,27 @@ for binary in binary_list:
                 instruction += "sll "
             elif funct3 == '101':
                 instruction += "srl "
+            else:
+                print("Unrecognized funct3 field for R-type instruction")
+                input_file.close()
+                output_file.close()
+                exit()
+
         elif funct7 == '0100000':
             if funct3 == '000':
                 instruction += "sub "
             elif funct3 == '101':
                 instruction += "sra "
+            else:
+                print("Unrecognized funct3 field for R-type instruction")
+                input_file.close()
+                output_file.close()
+                exit()
+        else:
+            print("Unrecognized funct7 field for R-type instruction")
+            input_file.close()
+            output_file.close()
+            exit()
         rd = str(int(rd, 2))
         rs1 = str(int(rs1, 2))
         rs2 = str(int(rs2, 2))
@@ -71,7 +90,17 @@ for binary in binary_list:
                 instruction += 'srli '
             elif immediate[:6] == '010000':
                 instruction += 'srai '
+            else:
+                print("Unrecognized immediate filed for srli/srai instruction")
+                input_file.close()
+                output_file.close()
+                exit()
             immediate = immediate[6:]
+        else:
+            print("Unrecognized funct3 field for I-type instruction")
+            input_file.close()
+            output_file.close()
+            exit()
 
         rd = str(int(rd, 2))
         rs1 = str(int(rs1, 2))
@@ -98,6 +127,11 @@ for binary in binary_list:
             instruction += 'lhu '
         elif funct3 == '111':
             instruction += 'lwu '
+        else:
+            print("Unrecognized funct3 field for load instruction opcode")
+            input_file.close()
+            output_file.close()
+            exit()
 
         rd = str(int(rd, 2))
         rs1 = str(int(rs1, 2))
@@ -120,6 +154,11 @@ for binary in binary_list:
             instruction += 'sw '
         elif funct3 == '011':
             instruction += 'sd '
+        else:
+            print("Unrecognized funct3 field for S-type instruction")
+            input_file.close()
+            output_file.close()
+            exit()
 
         rs1 = str(int(rs1, 2))
         rs2 = str(int(rs2, 2))
@@ -136,25 +175,36 @@ for binary in binary_list:
 
         if funct3 == '000':
             instruction += 'beq '
-        if funct3 == '001':
+        elif funct3 == '001':
             instruction += 'bne '
-        if funct3 == '100':
+        elif funct3 == '100':
             instruction += 'blt '
-        if funct3 == '101':
+        elif funct3 == '101':
             instruction += 'bge '
-        if funct3 == '110':
+        elif funct3 == '110':
             instruction += 'bltu '
-        if funct3 == '111':
+        elif funct3 == '111':
             instruction += 'bgeu '
+        else:
+            print("Unrecognized funct3 field for B-type instruction")
+            input_file.close()
+            output_file.close()
+            exit()
 
         immediate = 2 * int(immediate, 2)
         rs1 = str(int(rs1, 2))
         rs2 = str(int(rs2, 2))
+        temp_label = label_count
+        temp_instruction = instruction_list[instruction_count +
+                                            int(immediate/4)]
+        if temp_instruction and temp_instruction[0] == 'L':
+            label_count = temp_instruction[1]
 
-        instruction += 'x' + rs1 + ', x' + rs2 + \
-            ", L" + str((instruction_count))
-        instruction_list[instruction_count + int(immediate /
-                         4)] = "L" + str((instruction_count)) + ": "
+        instruction += 'x' + rs1 + ', x' + rs2 + ", L" + str((label_count))
+        instruction_list[instruction_count +
+                         int(immediate / 4)] = "L" + str((label_count)) + ": "
+        label_count = temp_label
+        label_count += 1
 
     # jal handler:
     elif opcode == '1101111':
@@ -166,10 +216,17 @@ for binary in binary_list:
         immediate = 2 * int(immediate, 2)
         rd = str(int(rd, 2))
 
-        instruction += 'x' + rd + ', L' + str((instruction_count))
-        instruction_list[instruction_count +
-                         int(immediate/4)] = "L" + str((instruction_count)) + ": "
+        temp_label = label_count
+        temp_instruction = instruction_list[instruction_count +
+                                            int(immediate/4)]
+        if temp_instruction and temp_instruction[0] == 'L':
+            label_count = temp_instruction[1]
 
+        instruction += 'x' + rd + ', L' + str((label_count))
+        instruction_list[instruction_count +
+                         int(immediate/4)] = "L" + str((label_count)) + ": "
+        label_count = temp_label
+        label_count += 1
     # jalr handler
     elif opcode == '1100111':
         rd = binary[-12:-7]
@@ -179,6 +236,11 @@ for binary in binary_list:
 
         if funct3 == '000':
             instruction += 'jalr '
+        else:
+            print("Unrecognized funct3 field for jalr instruction")
+            input_file.close()
+            output_file.close()
+            exit()
 
         rd = str(int(rd, 2))
         rs1 = str(int(rs1, 2))
@@ -194,6 +256,12 @@ for binary in binary_list:
         instruction += 'lui '
 
         instruction += 'x' + rd + ', ' + hex(int(immediate, 2))
+
+    else:
+        print("Unrecognized OpCode")
+        input_file.close()
+        output_file.close()
+        exit()
 
     instruction_list[instruction_count] += instruction
     output_file.write(instruction_list[instruction_count])
