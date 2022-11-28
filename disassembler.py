@@ -123,6 +123,35 @@ for binary in binary_list:
 
         instruction += 'x' + rs2 + ', ' + immediate + '(x' + rs1 + ')'
 
+    # B-type instruction handler
+    elif opcode == '1100011':
+        immediate = binary[-32] + binary[-8] + binary[-31:-25] + binary[-12:-8]
+        funct3 = binary[-15:-12]
+        rs1 = binary[-20:-15]
+        rs2 = binary[-25:-20]
+
+        if funct3 == '000':
+            instruction += 'beq '
+        if funct3 == '001':
+            instruction += 'bne '
+        if funct3 == '100':
+            instruction += 'blt '
+        if funct3 == '101':
+            instruction += 'bge '
+        if funct3 == '110':
+            instruction += 'bltu '
+        if funct3 == '111':
+            instruction += 'bgeu '
+
+        immediate = 2 * int(immediate, 2)
+        rs1 = str(int(rs1, 2))
+        rs2 = str(int(rs2))
+
+        instruction += 'x' + rs1 + ', x' + rs2 + \
+            ", L" + str((instruction_count))
+        instruction_list[instruction_count + int(immediate /
+                         4)] = "L" + str((instruction_count)) + ": "
+    print(instruction_count)
     instruction_list[instruction_count] += instruction
     output_file.write(instruction_list[instruction_count])
     output_file.write("\n")
