@@ -117,6 +117,12 @@ for binary in binary_list:
         elif funct3 == '011':
             instruction += 'sd '
 
+        rs1 = str(int(rs1, 2))
+        rs2 = str(int(rs2, 2))
+        immediate = str(int(immediate, 2))
+
+        instruction += 'x' + rs2 + ', ' + immediate + '(x' + rs1 + ')'
+
     instruction_list[instruction_count] += instruction
     output_file.write(instruction_list[instruction_count])
     output_file.write("\n")
