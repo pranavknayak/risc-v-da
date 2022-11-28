@@ -4,8 +4,8 @@ output_file = open("Output.s", "w")
 hex_instructions = input_file.read()
 hex_instructions = hex_instructions.splitlines()
 binary_list = []
-for hex in hex_instructions:
-    integer = int(hex, 16)
+for hex_code in hex_instructions:
+    integer = int(hex_code, 16)
     binary = format(integer, '0>32b')
     binary_list.append(binary)
 
@@ -181,6 +181,15 @@ for binary in binary_list:
         immediate = str(int(immediate, 2))
 
         instruction += 'x' + rd + ', ' + immediate + '(x' + rs1 + ')'
+
+    # lui handler
+    elif opcode == '0110111':
+        immediate = binary[-32:-12]
+        rd = binary[-12:-7]
+        rd = str(int(rd, 2))
+        instruction += 'lui '
+
+        instruction += 'x' + rd + ', ' + hex(int(immediate, 2))
 
     instruction_list[instruction_count] += instruction
     output_file.write(instruction_list[instruction_count])
