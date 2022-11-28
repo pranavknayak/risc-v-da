@@ -1,5 +1,9 @@
-input_file = open("Input.txt", "r")
-output_file = open("Output.s", "w")
+input_filename = input(
+    "Enter the filename/path for the hex instruction file: ")
+output_filename = input_filename.split(".")[0] + ".s"
+
+input_file = open(input_filename, "r")
+output_file = open(output_filename, "w")
 
 hex_instructions = input_file.read()
 hex_instructions = hex_instructions.splitlines()
