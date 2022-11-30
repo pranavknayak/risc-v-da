@@ -104,7 +104,10 @@ for binary in binary_list:
 
         rd = str(int(rd, 2))
         rs1 = str(int(rs1, 2))
-        immediate = str(int(immediate, 2))
+        if immediate[0] == '1':
+            immediate = str(-2**11 + int(immediate[1:], 2))
+        else:
+            immediate = str(int(immediate, 2))
         instruction += "x" + rd + ", x" + rs1 + ", " + immediate
 
     # I-type Load Instruction handler
@@ -135,7 +138,10 @@ for binary in binary_list:
 
         rd = str(int(rd, 2))
         rs1 = str(int(rs1, 2))
-        immediate = str(int(immediate, 2))
+        if immediate[0] == '1':
+            immediate = str(-2**11 + (int(immediate[1:], 2)))
+        else:
+            immediate = str(int(immediate, 2))
 
         instruction += 'x' + rd + ', ' + immediate + '(x' + rs1 + ')'
     # S-type Instruction handler
@@ -162,11 +168,15 @@ for binary in binary_list:
 
         rs1 = str(int(rs1, 2))
         rs2 = str(int(rs2, 2))
-        immediate = str(int(immediate, 2))
+        if immediate[0] == '1':
+            immediate = str(-2**11 + int(immediate[1:], 2))
+        else:
+            immediate = str(int(immediate, 2))
 
         instruction += 'x' + rs2 + ', ' + immediate + '(x' + rs1 + ')'
 
     # B-type instruction handler
+    # Assuming offset is positive
     elif opcode == '1100011':
         immediate = binary[-32] + binary[-8] + binary[-31:-25] + binary[-12:-8]
         funct3 = binary[-15:-12]
@@ -254,7 +264,6 @@ for binary in binary_list:
         rd = binary[-12:-7]
         rd = str(int(rd, 2))
         instruction += 'lui '
-
         instruction += 'x' + rd + ', ' + hex(int(immediate, 2))
 
     else:
