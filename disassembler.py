@@ -91,7 +91,7 @@ for binary in binary_list:
             elif immediate[:6] == '010000':
                 instruction += 'srai '
             else:
-                print("Unrecognized immediate filed for srli/srai instruction")
+                print("Unrecognized immediate field for srli/srai instruction")
                 input_file.close()
                 output_file.close()
                 exit()
